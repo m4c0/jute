@@ -1,9 +1,7 @@
-#include "ecow.hpp"
+#include "build.hpp"
 
 int main(int argc, char **argv) {
   using namespace ecow;
 
-  auto m = unit::create<mod>("jute");
-
-  return run_main(m, argc, argv);
+  return run_main(jute(), argc, argv);
 }
