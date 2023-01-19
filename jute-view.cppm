@@ -1,14 +1,16 @@
+module;
+#include <stdint.h>
+
 export module jute:view;
 
 namespace jute {
 export class view {
   const char *m_data{};
-  unsigned long m_len{};
+  size_t m_len{};
 
 public:
   constexpr view() noexcept = default;
-  constexpr view(const char *v, unsigned long s) noexcept
-      : m_data{v}, m_len{s} {}
+  constexpr view(const char *v, size_t s) noexcept : m_data{v}, m_len{s} {}
 
   [[nodiscard]] constexpr auto data() const noexcept { return m_data; }
   [[nodiscard]] constexpr auto size() const noexcept { return m_len; }
@@ -39,8 +41,7 @@ public:
 } // namespace jute
 
 namespace jute::operators {
-[[nodiscard]] constexpr view operator""_s(const char *v,
-                                          unsigned long size) noexcept {
+[[nodiscard]] constexpr view operator""_s(const char *v, size_t size) noexcept {
   return view{v, size};
 }
 
