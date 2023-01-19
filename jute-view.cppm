@@ -13,6 +13,12 @@ public:
   [[nodiscard]] constexpr auto data() const noexcept { return m_data; }
   [[nodiscard]] constexpr auto size() const noexcept { return m_len; }
 
+  [[nodiscard]] constexpr view subview(unsigned idx) const noexcept {
+    if (idx >= m_len)
+      return {};
+    return {m_data + idx, m_len - idx};
+  }
+
   [[nodiscard]] constexpr char operator[](unsigned idx) const noexcept {
     if (idx >= m_len)
       return 0;
@@ -49,4 +55,6 @@ static_assert("aa"_s != "aaaa"_s);
 static_assert("aaaa"_s != "aa"_s);
 static_assert("a"_s != "b"_s);
 static_assert("aaaaaaaa"_s != "aaaaaaab"_s);
+
+static_assert("jute"_s.subview(2) == "te"_s);
 } // namespace jute::operators
