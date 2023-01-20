@@ -40,7 +40,7 @@ public:
 }
 } // namespace jute
 
-namespace jute::operators {
+namespace jute::literals {
 [[nodiscard]] constexpr view operator""_s(const char *v, size_t size) noexcept {
   return view{v, size};
 }
@@ -58,4 +58,4 @@ static_assert("a"_s != "b"_s);
 static_assert("aaaaaaaa"_s != "aaaaaaab"_s);
 
 static_assert("jute"_s.subview(2) == "te"_s);
-} // namespace jute::operators
+} // namespace jute::literals

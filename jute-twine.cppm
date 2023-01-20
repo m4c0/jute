@@ -72,7 +72,7 @@ public:
 
 namespace {
 using namespace jute;
-using namespace jute::operators;
+using namespace jute::literals;
 static_assert(twine{} == twine{});
 static_assert(twine{"a"_s} != twine{});
 static_assert(twine{} != twine{"a"_s});
