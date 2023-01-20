@@ -3,8 +3,8 @@ module;
 
 export module jute:view;
 
-namespace jute {
-export class view {
+export namespace jute {
+class view {
   const char *m_data{};
   size_t m_len{};
 
@@ -40,10 +40,14 @@ public:
 }
 } // namespace jute
 
-namespace jute::literals {
+export namespace jute::literals {
 [[nodiscard]] constexpr view operator""_s(const char *v, size_t size) noexcept {
   return view{v, size};
 }
+} // namespace jute::literals
+
+namespace {
+using namespace jute::literals;
 
 static_assert("abcde"_s[0] == 'a');
 static_assert("abcde"_s[3] == 'd');
@@ -58,4 +62,4 @@ static_assert("a"_s != "b"_s);
 static_assert("aaaaaaaa"_s != "aaaaaaab"_s);
 
 static_assert("jute"_s.subview(2) == "te"_s);
-} // namespace jute::literals
+} // namespace
