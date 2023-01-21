@@ -4,83 +4,91 @@ import hai;
 import traits;
 
 export namespace jute {
-class twine {
-  using next_t = hai::sptr<twine>;
+template <unsigned N> class twine {
+  view m_v[N];
 
-  view m_v{};
-  next_t m_next{};
-
-  constexpr twine(const view &v, next_t n) noexcept : m_v{v}, m_next{n} {}
+  template <unsigned> friend class twine;
 
 public:
   constexpr twine() noexcept = default;
-  constexpr twine(const view &v) noexcept : m_v{v} {}
+  constexpr twine(view a) : m_v{a} {}
+  constexpr twine(view a, view b) noexcept : m_v{a, b} {}
 
-  [[nodiscard]] constexpr const view &self() const noexcept { return m_v; }
-  [[nodiscard]] constexpr const auto &next() const noexcept { return m_next; }
-
-  [[nodiscard]] constexpr twine substr(unsigned idx) const noexcept {
-    if (idx < m_v.size())
-      return {m_v.subview(idx), m_next};
-    if (!m_next)
-      return {};
-    return m_next->substr(idx - m_v.size());
+  [[nodiscard]] constexpr unsigned size() const noexcept {
+    unsigned s{};
+    for (auto v : m_v)
+      s += v.size();
+    return s;
   }
 
-  [[nodiscard]] constexpr bool empty() const noexcept { return size() == 0; }
-  [[nodiscard]] constexpr unsigned size() const noexcept {
-    unsigned s = m_v.size();
-    return m_next ? (s + m_next->size()) : s;
+  [[nodiscard]] constexpr hai::cstr cstr() const noexcept {
+    hai::cstr res{size()};
+    auto ptr = res.begin();
+    for (auto v : m_v) {
+      for (auto c : v) {
+        *ptr++ = c;
+      }
+    }
+    return res;
   }
 
   [[nodiscard]] constexpr char operator[](unsigned idx) const noexcept {
-    if (idx < m_v.size())
-      return m_v[idx];
-    if (!m_next)
-      return 0;
-    return (*m_next)[idx - m_v.size()];
+    for (auto v : m_v) {
+      if (idx < v.size())
+        return v[idx];
+      idx -= v.size();
+    }
+    return 0;
   }
 
-  [[nodiscard]] constexpr twine operator+(const view &o) noexcept {
-    twine n = m_next ? (*m_next + o) : o;
-    return twine{m_v, next_t::make(n)};
+  [[nodiscard]] constexpr twine<N + 1> operator+(const view &o) const noexcept {
+    twine<N + 1> res{};
+    for (auto i = 0; i < N; i++) {
+      res.m_v[i] = m_v[i];
+    }
+    res.m_v[N] = o;
+    return res;
   }
-  [[nodiscard]] constexpr twine operator+(const twine &o) noexcept {
-    twine n = m_next ? (*m_next + o) : o;
-    return twine{m_v, next_t::make(n)};
+  template <unsigned M>
+  [[nodiscard]] constexpr twine<M + N>
+  operator+(const twine<M> &o) const noexcept {
+    twine<N + M> res{};
+    for (auto i = 0; i < N; i++) {
+      res.m_v[i] = m_v[i];
+    }
+    for (auto i = 0; i < M; i++) {
+      res.m_v[i + N] = o.m_v[i];
+    }
+    return res;
   }
 };
+twine()->twine<0>;
+twine(view)->twine<1>;
+twine(view, view)->twine<2>;
 
-[[nodiscard]] constexpr twine operator+(const view &a, const view &b) noexcept {
-  return twine{a} + b;
-}
-[[nodiscard]] constexpr bool operator==(const twine &a,
-                                        const twine &b) noexcept {
-  const auto as = a.size();
-  const auto bs = b.size();
-  if (as != bs)
-    return false;
-
-  for (auto i = 0; i < as; i++) {
-    if (a[i] != b[i])
-      return false;
-  }
-
-  return true;
+[[nodiscard]] constexpr twine<2> operator+(const view &a,
+                                           const view &b) noexcept {
+  return twine<2>{a, b};
 }
 } // namespace jute
 
 namespace {
 using namespace jute;
 using namespace jute::literals;
+
+template <unsigned A, unsigned B>
+[[nodiscard]] constexpr bool operator==(const twine<A> &a,
+                                        const twine<B> &b) noexcept {
+  auto ca = a.cstr();
+  auto cb = b.cstr();
+  return view{ca} == view{cb};
+}
+
 static_assert(twine{} == twine{});
 static_assert(twine{"a"_s} != twine{});
 static_assert(twine{} != twine{"a"_s});
 static_assert(twine{"a"_s} == twine{"a"_s});
 static_assert(twine{"ab"_s} != twine{"aa"_s});
-
-static_assert(twine{"twine"_s}.substr(3) == twine{"ne"_s});
-static_assert(("ju"_s + "te"_s).substr(3) == "e"_s);
 
 static_assert(twine{""_s}.size() == 0);
 static_assert(twine{"twine"_s}.size() == 5);
@@ -99,4 +107,11 @@ static_assert(twine{"j"_s} + twine{"u"_s} + twine{"t"_s} + twine{"e"_s} ==
               twine{"jute"_s});
 static_assert("ju"_s + "te"_s != "aut"_s + "e"_s);
 static_assert("ju"_s + "te"_s != "jut"_s + "a"_s);
+
+static_assert([] {
+  constexpr twine t{"jute"_s};
+  constexpr char c[t.size()]{};
+  return true;
+}());
+// static_assert(view{("jute"_s + " "_s + "twine"_s).cstr()} == "jute twine"_s);
 } // namespace
