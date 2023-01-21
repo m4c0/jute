@@ -2,6 +2,7 @@ module;
 #include <stdint.h>
 
 export module jute:view;
+import hai;
 
 export namespace jute {
 class view {
@@ -11,9 +12,14 @@ class view {
 public:
   constexpr view() noexcept = default;
   constexpr view(const char *v, size_t s) noexcept : m_data{v}, m_len{s} {}
+  constexpr view(const hai::cstr &str) noexcept
+      : m_data{str.data()}, m_len{str.size()} {}
 
   [[nodiscard]] constexpr auto data() const noexcept { return m_data; }
   [[nodiscard]] constexpr auto size() const noexcept { return m_len; }
+
+  [[nodiscard]] constexpr auto begin() const noexcept { return m_data; }
+  [[nodiscard]] constexpr auto end() const noexcept { return m_data + m_len; }
 
   [[nodiscard]] constexpr view subview(unsigned idx) const noexcept {
     if (idx >= m_len)
@@ -63,3 +69,9 @@ static_assert("aaaaaaaa"_s != "aaaaaaab"_s);
 
 static_assert("jute"_s.subview(2) == "te"_s);
 } // namespace
+
+static_assert([] {
+  hai::cstr c{20};
+  jute::view v{c};
+  return v.data() == c.data() && c.size() == v.size();
+}());
