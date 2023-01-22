@@ -26,6 +26,35 @@ public:
       return {};
     return {m_data + idx, m_len - idx};
   }
+  [[nodiscard]] constexpr auto split(char c) const noexcept {
+    struct pair {
+      view before;
+      view after;
+    };
+    for (auto i = 0U; i < m_len; i++) {
+      if (m_data[i] != c)
+        continue;
+
+      return pair{.before = {m_data, i},
+                  .after = {m_data + i + 1, m_len - i - 1}};
+    }
+    return pair{*this, {}};
+  }
+  [[nodiscard]] constexpr auto rsplit(char c) const noexcept {
+    struct pair {
+      view before;
+      view after;
+    };
+    for (auto i = m_len; i > 0; i--) {
+      auto j = i - 1;
+      if (m_data[j] != c)
+        continue;
+
+      return pair{.before = {m_data, j},
+                  .after = {m_data + j + 1, m_len - j - 1}};
+    }
+    return pair{{}, *this};
+  }
 
   [[nodiscard]] constexpr char operator[](unsigned idx) const noexcept {
     if (idx >= m_len)
@@ -68,6 +97,24 @@ static_assert("a"_s != "b"_s);
 static_assert("aaaaaaaa"_s != "aaaaaaab"_s);
 
 static_assert("jute"_s.subview(2) == "te"_s);
+
+static_assert([] {
+  const auto &[a, b] = "love"_s.split('/');
+  return a == "love"_s && b == ""_s;
+}());
+static_assert([] {
+  const auto &[a, b] = "jute twine etc"_s.split(' ');
+  return a == "jute"_s && b == "twine etc"_s;
+}());
+
+static_assert([] {
+  const auto &[a, b] = "love"_s.rsplit('/');
+  return a == ""_s && b == "love"_s;
+}());
+static_assert([] {
+  const auto &[a, b] = "jute twine etc"_s.rsplit(' ');
+  return a == "jute twine"_s && b == "etc"_s;
+}());
 } // namespace
 
 static_assert([] {
