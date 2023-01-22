@@ -1,10 +1,10 @@
-module;
-#include <stdint.h>
-
 export module jute:view;
 import hai;
+import traits;
 
 export namespace jute {
+using traits::size_t;
+
 class view {
   const char *m_data{};
   size_t m_len{};
