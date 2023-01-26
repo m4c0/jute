@@ -15,6 +15,8 @@ public:
   constexpr view(const hai::cstr &str) noexcept
       : m_data{str.data()}, m_len{str.size()} {}
 
+  template <unsigned N> constexpr view(const char (&c)[N]) : view(c, N - 1) {}
+
   [[nodiscard]] constexpr auto data() const noexcept { return m_data; }
   [[nodiscard]] constexpr auto size() const noexcept { return m_len; }
 
@@ -90,6 +92,8 @@ static_assert("abcde"_s[4] == 'e');
 
 static_assert("a"_s == "a"_s);
 static_assert("abacabb"_s == "abacabb"_s);
+
+static_assert("check"_s == jute::view{"check"});
 
 static_assert("aa"_s != "aaaa"_s);
 static_assert("aaaa"_s != "aa"_s);
