@@ -23,10 +23,17 @@ public:
   [[nodiscard]] constexpr auto begin() const noexcept { return m_data; }
   [[nodiscard]] constexpr auto end() const noexcept { return m_data + m_len; }
 
-  [[nodiscard]] constexpr view subview(unsigned idx) const noexcept {
+  [[nodiscard]] constexpr auto subview(unsigned idx) const noexcept {
+    struct pair {
+      view before;
+      view after;
+    };
     if (idx >= m_len)
-      return {};
-    return {m_data + idx, m_len - idx};
+      return pair{*this, {}};
+    return pair{
+        .before = {m_data, idx},
+        .after = {m_data + idx, m_len - idx},
+    };
   }
   [[nodiscard]] constexpr auto split(char c) const noexcept {
     struct pair {
@@ -100,7 +107,10 @@ static_assert("aaaa"_s != "aa"_s);
 static_assert("a"_s != "b"_s);
 static_assert("aaaaaaaa"_s != "aaaaaaab"_s);
 
-static_assert("jute"_s.subview(2) == "te"_s);
+static_assert([] {
+  const auto &[a, b] = "jute"_s.subview(2);
+  return a == "ju"_s && b == "te"_s;
+});
 
 static_assert([] {
   const auto &[a, b] = "love"_s.split('/');
