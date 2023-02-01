@@ -70,6 +70,13 @@ public:
       return 0;
     return m_data[idx];
   }
+
+  [[nodiscard]] static constexpr view unsafe(const char *str) {
+    auto i = 0U;
+    while (str[i])
+      i++;
+    return view{str, i};
+  }
 };
 
 [[nodiscard]] constexpr bool operator==(const view &a, const view &b) noexcept {
@@ -101,6 +108,7 @@ static_assert("a"_s == "a"_s);
 static_assert("abacabb"_s == "abacabb"_s);
 
 static_assert("check"_s == jute::view{"check"});
+static_assert("abacabb"_s == jute::view::unsafe("abacabb"));
 
 static_assert("aa"_s != "aaaa"_s);
 static_assert("aaaa"_s != "aa"_s);
