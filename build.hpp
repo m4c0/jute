@@ -1,3 +1,4 @@
+#pragma once
 #include "../hai/build.hpp"
 #include "../traits/build.hpp"
 #include "ecow.hpp"
