@@ -8,39 +8,43 @@ export namespace jute {
 /// from heap.
 class heap {
   view m_view;
-  bool m_heap = false;
+  unsigned *m_refcnt{};
 
-  [[nodiscard]] static constexpr view clone(view sv) noexcept {
-    char *data = new char[sv.size()]; // NOLINT
-    view res{data, sv.size()};
-    for (auto c : sv) {
-      *data++ = c;
-    }
-    return res;
+  constexpr heap(view v, unsigned *h) noexcept : m_view{v}, m_refcnt{h} {
+    if (h != nullptr)
+      (*h)++;
   }
-
-  constexpr heap(view v, bool h) noexcept : m_view{v}, m_heap{h} {}
 
 public:
   constexpr heap() noexcept = default;
   constexpr ~heap() noexcept {
-    if (m_heap)
+    if (m_refcnt != nullptr && (--(*m_refcnt) == 0)) {
       delete[] m_view.data();
+      delete m_refcnt;
+    }
   }
 
-  constexpr heap(view v) noexcept : heap(v, false) {}
+  constexpr heap(view v) noexcept : heap(v, nullptr) {}
 
-  constexpr heap(const heap &o) noexcept = delete;
-  constexpr heap(heap &&o) noexcept : heap{o.m_view, o.m_heap} {
-    o.m_heap = false;
+  constexpr heap(const heap &o) noexcept : heap{o.m_view, o.m_refcnt} {}
+  constexpr heap(heap &&o) noexcept : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
+    o.m_refcnt = nullptr;
   }
-  constexpr heap &operator=(const heap &o) noexcept = delete;
+  constexpr heap &operator=(const heap &o) noexcept {
+    if (this == &o)
+      return *this;
+    m_view = o.m_view;
+    m_refcnt = o.m_refcnt;
+    if (m_refcnt != nullptr)
+      (*m_refcnt)++;
+    return *this;
+  }
   constexpr heap &operator=(heap &&o) noexcept {
     if (this == &o)
       return *this;
     m_view = o.m_view;
-    m_heap = o.m_heap;
-    o.m_heap = false;
+    m_refcnt = o.m_refcnt;
+    o.m_refcnt = nullptr;
     return *this;
   }
 
@@ -56,7 +60,7 @@ public:
     for (auto c : o) {
       *data++ = c;
     }
-    return heap{v, true};
+    return heap{v, new unsigned{}};
   }
 
   [[nodiscard]] constexpr heap operator+(const heap &o) const {
@@ -69,10 +73,6 @@ public:
   [[nodiscard]] constexpr bool operator==(const heap &o) const noexcept {
     return **this == *o;
   }
-
-  [[nodiscard]] constexpr heap clone() const noexcept {
-    return heap{clone(m_view), true};
-  }
 };
 
 [[nodiscard]] inline constexpr heap
@@ -84,6 +84,5 @@ operator"" _ks(const char *c, traits::size_t len) noexcept {
 namespace {
 using namespace jute;
 using namespace jute::literals;
-static_assert((*heap{"ok"_s}.clone()).size() == 2);
 static_assert(*(heap{"this "_s} + "is "_s + "fine") == "this is fine"_s);
 } // namespace
