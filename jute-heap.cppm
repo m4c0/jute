@@ -85,5 +85,11 @@ operator"" _hs(const char *c, traits::size_t len) noexcept {
 
 namespace {
 using namespace jute::literals;
-static_assert(*("this "_hs + "is "_s + "fine") == "this is fine"_s);
+static_assert((*""_hs).size() == 0);
+static_assert(*"a"_hs == "a");
+static_assert("test"_hs == "test"_hs);
+static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
+static_assert(*(traits::move("a"_hs)) == "a");
+static_assert(jute::heap{"asd"_s} == "asd"_hs);
+static_assert("aaa"_hs + "bb"_s + "c" + 'd' == "aaabbcd"_hs);
 } // namespace
