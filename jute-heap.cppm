@@ -74,15 +74,16 @@ public:
     return **this == *o;
   }
 };
-
-[[nodiscard]] inline constexpr heap
-operator"" _ks(const char *c, traits::size_t len) noexcept {
-  return heap{view{c, len}};
-}
 } // namespace jute
 
+export namespace jute::literals {
+[[nodiscard]] inline constexpr heap
+operator"" _hs(const char *c, traits::size_t len) noexcept {
+  return heap{view{c, len}};
+}
+} // namespace jute::literals
+
 namespace {
-using namespace jute;
 using namespace jute::literals;
-static_assert(*(heap{"this "_s} + "is "_s + "fine") == "this is fine"_s);
+static_assert(*("this "_hs + "is "_s + "fine") == "this is fine"_s);
 } // namespace
