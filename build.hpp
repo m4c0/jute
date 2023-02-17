@@ -11,6 +11,7 @@ auto jute() {
   m->add_wsdep("traits", traits());
   m->add_part("view");
   m->add_part("twine");
+  m->add_part("heap");
 
   return m;
 }
