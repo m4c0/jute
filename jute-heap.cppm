@@ -83,5 +83,7 @@ operator"" _ks(const char *c, traits::size_t len) noexcept {
 
 namespace {
 using namespace jute;
-static_assert((*heap{view{"ok"}}.clone()).size() == 2);
+using namespace jute::literals;
+static_assert((*heap{"ok"_s}.clone()).size() == 2);
+static_assert(*(heap{"this "_s} + "is "_s + "fine") == "this is fine"_s);
 } // namespace
