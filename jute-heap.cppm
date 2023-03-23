@@ -7,12 +7,13 @@ export namespace jute {
 /// strings in its dtor, but it won't try to deallocate if the string is not
 /// from heap.
 class heap {
-  view m_view;
+  view m_view{};
   unsigned *m_refcnt{};
 
-  constexpr heap(view v, unsigned *h) noexcept : m_view{v}, m_refcnt{h} {
-    if (h != nullptr)
-      (*h)++;
+  // TODO: fix weird refcount issues (found while using this with mno)
+
+  constexpr heap(view v, unsigned *r) noexcept : m_view{v}, m_refcnt{r} {
+    *r = 1;
   }
 
 public:
@@ -24,9 +25,13 @@ public:
     }
   }
 
-  constexpr heap(view v) noexcept : heap(v, nullptr) {}
+  constexpr heap(view v) noexcept : m_view{v} {}
 
-  constexpr heap(const heap &o) noexcept : heap{o.m_view, o.m_refcnt} {}
+  constexpr heap(const heap &o) noexcept
+      : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
+    if (m_refcnt != nullptr)
+      (*m_refcnt)++;
+  }
   constexpr heap(heap &&o) noexcept : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
     o.m_refcnt = nullptr;
   }
