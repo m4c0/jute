@@ -4,7 +4,6 @@ runs:
   steps:
     - uses: m4c0/hai/.github/actions/deps@main
     - uses: m4c0/traits/.github/actions/deps@main
-    - uses: actions/checkout@v3
+    - uses: m4c0/ecow/.github/actions/checkout@main
       with:
-        repository: m4c0/jute
         path: jute
