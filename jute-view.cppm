@@ -26,6 +26,15 @@ public:
   [[nodiscard]] constexpr auto begin() const noexcept { return m_data; }
   [[nodiscard]] constexpr auto end() const noexcept { return m_data + m_len; }
 
+  [[nodiscard]] constexpr auto cstr() const noexcept {
+    hai::cstr res{size()};
+    auto ptr = res.begin();
+    for (auto c : *this) {
+      *ptr++ = c;
+    }
+    return res;
+  }
+
   [[nodiscard]] constexpr auto subview(unsigned idx) const noexcept {
     struct pair {
       view before;
