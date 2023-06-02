@@ -27,7 +27,7 @@ public:
   [[nodiscard]] constexpr auto end() const noexcept { return m_data + m_len; }
 
   [[nodiscard]] constexpr auto cstr() const noexcept {
-    hai::cstr res{size()};
+    hai::cstr res{static_cast<unsigned>(size())};
     auto ptr = res.begin();
     for (auto c : *this) {
       *ptr++ = c;
@@ -155,4 +155,9 @@ static_assert([] {
   hai::cstr c{20};
   jute::view v{c};
   return v.data() == c.data() && c.size() == v.size();
+}());
+static_assert([] {
+  jute::view v{"testing"};
+  hai::cstr c = v.cstr();
+  return v == jute::view{c};
 }());
