@@ -47,6 +47,23 @@ public:
         .after = {m_data + idx, m_len - idx},
     };
   }
+  [[nodiscard]] constexpr auto subview(unsigned idx,
+                                       unsigned sz) const noexcept {
+    struct trio {
+      view before;
+      view middle;
+      view after;
+    };
+    if (idx >= m_len)
+      return trio{*this, {}, {}};
+
+    auto [b, mm] = subview(idx);
+    if (idx + sz >= m_len)
+      return trio{b, mm, {}};
+
+    auto [m, a] = mm.subview(sz);
+    return trio{b, m, a};
+  }
   [[nodiscard]] constexpr auto split(char c) const noexcept {
     struct pair {
       view before;
@@ -130,6 +147,15 @@ static_assert("aaaaaaaa"_s != "aaaaaaab"_s);
 static_assert([] {
   const auto &[a, b] = "jute"_s.subview(2);
   return a == "ju"_s && b == "te"_s;
+});
+
+static_assert([] {
+  const auto &[a, b, c] = "jute"_s.subview(2, 1);
+  return a == "ju"_s && b == "t"_s && c == "e"_s;
+});
+static_assert([] {
+  const auto &[a, b, c] = "jute"_s.subview(2, 0);
+  return a == "ju"_s && b == ""_s && c == "te"_s;
 });
 
 static_assert([] {
