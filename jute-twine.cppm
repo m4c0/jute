@@ -109,8 +109,9 @@ static_assert("ju"_s + "te"_s != "aut"_s + "e"_s);
 static_assert("ju"_s + "te"_s != "jut"_s + "a"_s);
 
 static_assert([] {
+  // tests if we can use twine and its size in constexpr
   constexpr twine t{"jute"_s};
-  constexpr char c[t.size()]{};
+  [[maybe_unused]] constexpr char c[t.size()]{};
   return true;
 }());
 // static_assert(view{("jute"_s + " "_s + "twine"_s).cstr()} == "jute twine"_s);
