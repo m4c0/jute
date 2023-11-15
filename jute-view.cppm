@@ -35,6 +35,14 @@ public:
     return res;
   }
 
+  [[nodiscard]] constexpr auto index_of(char c) const noexcept {
+    for (auto i = 0; i < m_len; i++)
+      if (m_data[i] == c)
+        return i;
+
+    return -1;
+  }
+
   [[nodiscard]] constexpr auto subview(unsigned idx) const noexcept {
     struct pair {
       view before;
@@ -143,6 +151,9 @@ static_assert("aa"_s != "aaaa"_s);
 static_assert("aaaa"_s != "aa"_s);
 static_assert("a"_s != "b"_s);
 static_assert("aaaaaaaa"_s != "aaaaaaab"_s);
+
+static_assert("aabaa"_s.index_of('b') == 2);
+static_assert("aabaa"_s.index_of('c') == -1);
 
 static_assert([] {
   const auto &[a, b] = "jute"_s.subview(2);
