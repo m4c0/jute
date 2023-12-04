@@ -111,7 +111,7 @@ public:
   [[nodiscard]] constexpr view trim() const noexcept {
     auto d = m_data;
     auto l = m_len;
-    while (*d == ' ' && l > 0) {
+    while (l > 0 && *d == ' ') {
       d++;
       l--;
     }
@@ -206,6 +206,7 @@ static_assert("   abc  "_s.trim() == "abc");
 static_assert("   abc  "_s.trim() == "abc");
 static_assert(" abc 234 "_s.trim() == "abc 234");
 static_assert("   "_s.trim() == "");
+static_assert(""_s.trim() == "");
 } // namespace
 
 static_assert([] {
