@@ -108,6 +108,25 @@ public:
     return m_data[idx];
   }
 
+  [[nodiscard]] constexpr view trim() const noexcept {
+    for (size_t i = 0; i < m_len; i++) {
+      auto c = m_data[i];
+      if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+        continue;
+
+      size_t j;
+      for (j = i + 1; j < m_len; j++) {
+        auto c = m_data[j];
+        if (c != ' ' && c != '\t' && c != '\r' && c != '\n')
+          continue;
+
+        break;
+      }
+      return view{m_data + i, j - i};
+    }
+    return *this;
+  }
+
   [[nodiscard]] static constexpr view unsafe(const char *str) {
     auto i = 0U;
     while (str[i])
@@ -186,6 +205,11 @@ static_assert([] {
   const auto &[a, b] = "jute twine etc"_s.rsplit(' ');
   return a == "jute twine"_s && b == "etc"_s;
 }());
+
+static_assert("abc"_s.trim() == "abc");
+static_assert("  abc"_s.trim() == "abc");
+static_assert("abc   "_s.trim() == "abc");
+static_assert("   abc  "_s.trim() == "abc");
 } // namespace
 
 static_assert([] {
