@@ -22,6 +22,10 @@ class heap {
       delete m_refcnt;
     }
   }
+  constexpr void reset() {
+    m_view = jute::view{"dev error: usage of string after ref is moved"};
+    m_refcnt = nullptr;
+  }
 
 public:
   constexpr heap() noexcept = default;
@@ -34,7 +38,7 @@ public:
     inc_ref();
   }
   constexpr heap(heap &&o) noexcept : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
-    o.m_refcnt = nullptr;
+    o.reset();
   }
   constexpr heap &operator=(const heap &o) noexcept {
     if (m_refcnt == o.m_refcnt)
@@ -53,7 +57,7 @@ public:
     dec_ref();
     m_view = o.m_view;
     m_refcnt = o.m_refcnt;
-    o.m_refcnt = nullptr;
+    o.reset();
     return *this;
   }
 
