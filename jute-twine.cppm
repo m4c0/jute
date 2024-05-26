@@ -114,5 +114,6 @@ static_assert([] {
   [[maybe_unused]] constexpr char c[t.size()]{};
   return true;
 }());
-// static_assert(view{("jute"_s + " "_s + "twine"_s).cstr()} == "jute twine"_s);
+
+static_assert(view{("jute"_s + " "_s + "twine"_s).cstr()} == "jute twine"_s);
 } // namespace
