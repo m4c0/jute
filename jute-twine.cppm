@@ -1,4 +1,5 @@
 export module jute:twine;
+import :heap;
 import :view;
 import hai;
 import traits;
@@ -61,6 +62,14 @@ public:
     }
     return res;
   }
+
+  [[nodiscard]] constexpr operator heap() const noexcept {
+    heap res{};
+    for (auto v : m_v) {
+      res = res + v;
+    }
+    return res;
+  }
 };
 twine()->twine<0>;
 twine(view)->twine<1>;
@@ -116,4 +125,6 @@ static_assert([] {
 }());
 
 static_assert(view{("jute"_s + " "_s + "twine"_s).cstr()} == "jute twine"_s);
+
+static_assert(heap{"jute"_s + " "_s + "twine"_s} == "jute twine"_hs);
 } // namespace
