@@ -10,27 +10,28 @@ class heap {
   view m_view{};
   unsigned *m_refcnt{};
 
-  // TODO: fix weird refcount issues (found while using this with mno)
+  constexpr heap(view v, unsigned *r) noexcept : m_view{v}, m_refcnt{r} {}
 
-  constexpr heap(view v, unsigned *r) noexcept : m_view{v}, m_refcnt{r} {
-    *r = 1;
+  constexpr void inc_ref() {
+    if (m_refcnt != nullptr)
+      (*m_refcnt)++;
   }
-
-public:
-  constexpr heap() noexcept = default;
-  constexpr ~heap() noexcept {
+  constexpr void dec_ref() {
     if (m_refcnt != nullptr && (--(*m_refcnt) == 0)) {
       delete[] m_view.data();
       delete m_refcnt;
     }
   }
 
+public:
+  constexpr heap() noexcept = default;
+  constexpr ~heap() noexcept { dec_ref(); }
+
   constexpr heap(view v) noexcept : m_view{v} {}
 
   constexpr heap(const heap &o) noexcept
       : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
-    if (m_refcnt != nullptr)
-      (*m_refcnt)++;
+    inc_ref();
   }
   constexpr heap(heap &&o) noexcept : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
     o.m_refcnt = nullptr;
@@ -38,15 +39,16 @@ public:
   constexpr heap &operator=(const heap &o) noexcept {
     if (this == &o)
       return *this;
+    dec_ref();
     m_view = o.m_view;
     m_refcnt = o.m_refcnt;
-    if (m_refcnt != nullptr)
-      (*m_refcnt)++;
+    inc_ref();
     return *this;
   }
   constexpr heap &operator=(heap &&o) noexcept {
     if (this == &o)
       return *this;
+    dec_ref();
     m_view = o.m_view;
     m_refcnt = o.m_refcnt;
     o.m_refcnt = nullptr;
@@ -65,7 +67,7 @@ public:
     for (auto c : o) {
       *data++ = c;
     }
-    return heap{v, new unsigned{}};
+    return heap{v, new unsigned{1}};
   }
 
   [[nodiscard]] constexpr heap operator+(const heap &o) const {
@@ -97,4 +99,11 @@ static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
 static_assert(*(traits::move("a"_hs)) == "a");
 static_assert(jute::heap{"asd"_s} == "asd"_hs);
 static_assert("aaa"_hs + "bb"_s + "c" + 'd' == "aaabbcd"_hs);
+
+static_assert([] {
+  // Checks if we can copy heap-allocated over heap-allocated
+  jute::heap a = "1"_hs + "2"_s;
+  a = a + "3"_s;
+  return a == "123"_hs;
+}());
 } // namespace
