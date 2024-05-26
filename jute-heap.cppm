@@ -37,8 +37,9 @@ public:
     o.m_refcnt = nullptr;
   }
   constexpr heap &operator=(const heap &o) noexcept {
-    if (this == &o)
+    if (m_refcnt == o.m_refcnt)
       return *this;
+
     dec_ref();
     m_view = o.m_view;
     m_refcnt = o.m_refcnt;
@@ -46,8 +47,9 @@ public:
     return *this;
   }
   constexpr heap &operator=(heap &&o) noexcept {
-    if (this == &o)
+    if (m_refcnt == o.m_refcnt)
       return *this;
+
     dec_ref();
     m_view = o.m_view;
     m_refcnt = o.m_refcnt;
