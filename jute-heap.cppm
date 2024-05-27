@@ -3,6 +3,8 @@ import :view;
 import traits;
 
 export namespace jute {
+struct no_copy {};
+
 /// Manages a string that maybe allocated on the heap. It will deallocate heap
 /// strings in its dtor, but it won't try to deallocate if the string is not
 /// from heap.
@@ -31,7 +33,14 @@ public:
   constexpr heap() noexcept = default;
   constexpr ~heap() noexcept { dec_ref(); }
 
-  constexpr heap(view v) noexcept : m_view{v} {}
+  constexpr heap(view v) noexcept : m_refcnt{new unsigned{1}} {
+    auto *data = new char[v.size()]; // NOLINT
+    m_view = view{data, v.size()};
+    for (auto c : v) {
+      *data++ = c;
+    }
+  }
+  constexpr heap(no_copy, view v) noexcept : m_view{v} {}
 
   constexpr heap(const heap &o) noexcept
       : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
@@ -92,7 +101,7 @@ public:
 export namespace jute::literals {
 [[nodiscard]] inline constexpr heap
 operator"" _hs(const char *c, traits::size_t len) noexcept {
-  return heap{view{c, len}};
+  return heap{no_copy{}, view{c, len}};
 }
 } // namespace jute::literals
 
