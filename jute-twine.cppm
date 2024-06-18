@@ -11,18 +11,18 @@ template <unsigned N> class twine {
   template <unsigned> friend class twine;
 
 public:
-  constexpr twine() noexcept = default;
+  constexpr twine() = default;
   constexpr twine(view a) : m_v{a} {}
-  constexpr twine(view a, view b) noexcept : m_v{a, b} {}
+  constexpr twine(view a, view b) : m_v{a, b} {}
 
-  [[nodiscard]] constexpr unsigned size() const noexcept {
+  [[nodiscard]] constexpr unsigned size() const {
     unsigned s{};
     for (auto v : m_v)
       s += v.size();
     return s;
   }
 
-  [[nodiscard]] constexpr hai::cstr cstr() const noexcept {
+  [[nodiscard]] constexpr hai::cstr cstr() const {
     hai::cstr res{size()};
     auto ptr = res.begin();
     for (auto v : m_v) {
@@ -33,7 +33,7 @@ public:
     return res;
   }
 
-  [[nodiscard]] constexpr char operator[](unsigned idx) const noexcept {
+  [[nodiscard]] constexpr char operator[](unsigned idx) const {
     for (auto v : m_v) {
       if (idx < v.size())
         return v[idx];
@@ -42,7 +42,7 @@ public:
     return 0;
   }
 
-  [[nodiscard]] constexpr twine<N + 1> operator+(const view &o) const noexcept {
+  [[nodiscard]] constexpr twine<N + 1> operator+(const view &o) const {
     twine<N + 1> res{};
     for (auto i = 0; i < N; i++) {
       res.m_v[i] = m_v[i];
@@ -51,8 +51,7 @@ public:
     return res;
   }
   template <unsigned M>
-  [[nodiscard]] constexpr twine<M + N>
-  operator+(const twine<M> &o) const noexcept {
+  [[nodiscard]] constexpr twine<M + N> operator+(const twine<M> &o) const {
     twine<N + M> res{};
     for (auto i = 0; i < N; i++) {
       res.m_v[i] = m_v[i];
@@ -63,7 +62,7 @@ public:
     return res;
   }
 
-  [[nodiscard]] constexpr operator heap() const noexcept {
+  [[nodiscard]] constexpr operator heap() const {
     heap res{};
     for (auto v : m_v) {
       res = res + v;
@@ -75,8 +74,7 @@ twine()->twine<0>;
 twine(view)->twine<1>;
 twine(view, view)->twine<2>;
 
-[[nodiscard]] constexpr twine<2> operator+(const view &a,
-                                           const view &b) noexcept {
+[[nodiscard]] constexpr twine<2> operator+(const view &a, const view &b) {
   return twine<2>{a, b};
 }
 } // namespace jute
@@ -86,8 +84,7 @@ using namespace jute;
 using namespace jute::literals;
 
 template <unsigned A, unsigned B>
-[[nodiscard]] constexpr bool operator==(const twine<A> &a,
-                                        const twine<B> &b) noexcept {
+[[nodiscard]] constexpr bool operator==(const twine<A> &a, const twine<B> &b) {
   auto ca = a.cstr();
   auto cb = b.cstr();
   return view{ca} == view{cb};

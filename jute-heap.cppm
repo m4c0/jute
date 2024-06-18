@@ -12,7 +12,7 @@ class heap {
   view m_view{};
   unsigned *m_refcnt{};
 
-  constexpr heap(view v, unsigned *r) noexcept : m_view{v}, m_refcnt{r} {}
+  constexpr heap(view v, unsigned *r) : m_view{v}, m_refcnt{r} {}
 
   constexpr void inc_ref() {
     if (m_refcnt != nullptr)
@@ -30,26 +30,25 @@ class heap {
   }
 
 public:
-  constexpr heap() noexcept = default;
-  constexpr ~heap() noexcept { dec_ref(); }
+  constexpr heap() = default;
+  constexpr ~heap() { dec_ref(); }
 
-  constexpr heap(view v) noexcept : m_refcnt{new unsigned{1}} {
+  constexpr heap(view v) : m_refcnt{new unsigned{1}} {
     auto *data = new char[v.size()]; // NOLINT
     m_view = view{data, v.size()};
     for (auto c : v) {
       *data++ = c;
     }
   }
-  constexpr heap(no_copy, view v) noexcept : m_view{v} {}
+  constexpr heap(no_copy, view v) : m_view{v} {}
 
-  constexpr heap(const heap &o) noexcept
-      : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
+  constexpr heap(const heap &o) : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
     inc_ref();
   }
-  constexpr heap(heap &&o) noexcept : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
+  constexpr heap(heap &&o) : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
     o.reset();
   }
-  constexpr heap &operator=(const heap &o) noexcept {
+  constexpr heap &operator=(const heap &o) {
     if (m_refcnt == o.m_refcnt)
       return *this;
 
@@ -59,7 +58,7 @@ public:
     inc_ref();
     return *this;
   }
-  constexpr heap &operator=(heap &&o) noexcept {
+  constexpr heap &operator=(heap &&o) {
     if (m_refcnt == o.m_refcnt)
       return *this;
 
@@ -70,7 +69,7 @@ public:
     return *this;
   }
 
-  [[nodiscard]] constexpr view operator*() const noexcept { return m_view; }
+  [[nodiscard]] constexpr view operator*() const { return m_view; }
 
   [[nodiscard]] constexpr heap operator+(view o) const {
     const auto len = m_view.size() + o.size();
@@ -92,15 +91,15 @@ public:
     return *this + view{&c, 1};
   }
 
-  [[nodiscard]] constexpr bool operator==(const heap &o) const noexcept {
+  [[nodiscard]] constexpr bool operator==(const heap &o) const {
     return **this == *o;
   }
 };
 } // namespace jute
 
 export namespace jute::literals {
-[[nodiscard]] inline constexpr heap
-operator"" _hs(const char *c, traits::size_t len) noexcept {
+[[nodiscard]] inline constexpr heap operator"" _hs(const char *c,
+                                                   traits::size_t len) {
   return heap{no_copy{}, view{c, len}};
 }
 } // namespace jute::literals

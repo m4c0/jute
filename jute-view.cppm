@@ -13,20 +13,21 @@ class view {
   size_t m_len{};
 
 public:
-  constexpr view() noexcept = default;
-  constexpr view(const char *v, size_t s) noexcept : m_data{v}, m_len{s} {}
-  constexpr view(const hai::cstr &str) noexcept
-      : m_data{str.data()}, m_len{str.size()} {}
+  constexpr view() = default;
+  constexpr view(const char *v, size_t s) : m_data{v}, m_len{s} {}
+  constexpr view(const hai::cstr &str)
+      : m_data{str.data()}
+      , m_len{str.size()} {}
 
   template <unsigned N> constexpr view(const char (&c)[N]) : view(c, N - 1) {}
 
-  [[nodiscard]] constexpr auto data() const noexcept { return m_data; }
-  [[nodiscard]] constexpr auto size() const noexcept { return m_len; }
+  [[nodiscard]] constexpr auto data() const { return m_data; }
+  [[nodiscard]] constexpr auto size() const { return m_len; }
 
-  [[nodiscard]] constexpr auto begin() const noexcept { return m_data; }
-  [[nodiscard]] constexpr auto end() const noexcept { return m_data + m_len; }
+  [[nodiscard]] constexpr auto begin() const { return m_data; }
+  [[nodiscard]] constexpr auto end() const { return m_data + m_len; }
 
-  [[nodiscard]] constexpr auto cstr() const noexcept {
+  [[nodiscard]] constexpr auto cstr() const {
     hai::cstr res{static_cast<unsigned>(size())};
     auto ptr = res.begin();
     for (auto c : *this) {
@@ -35,7 +36,7 @@ public:
     return res;
   }
 
-  [[nodiscard]] constexpr auto index_of(char c) const noexcept {
+  [[nodiscard]] constexpr auto index_of(char c) const {
     for (auto i = 0; i < m_len; i++)
       if (m_data[i] == c)
         return i;
@@ -53,7 +54,7 @@ public:
     return true;
   }
 
-  [[nodiscard]] constexpr auto subview(unsigned idx) const noexcept {
+  [[nodiscard]] constexpr auto subview(unsigned idx) const {
     struct pair {
       view before;
       view after;
@@ -65,8 +66,7 @@ public:
         .after = {m_data + idx, m_len - idx},
     };
   }
-  [[nodiscard]] constexpr auto subview(unsigned idx,
-                                       unsigned sz) const noexcept {
+  [[nodiscard]] constexpr auto subview(unsigned idx, unsigned sz) const {
     struct trio {
       view before;
       view middle;
@@ -82,7 +82,7 @@ public:
     auto [m, a] = mm.subview(sz);
     return trio{b, m, a};
   }
-  [[nodiscard]] constexpr auto split(char c) const noexcept {
+  [[nodiscard]] constexpr auto split(char c) const {
     struct pair {
       view before;
       view after;
@@ -96,7 +96,7 @@ public:
     }
     return pair{*this, {}};
   }
-  [[nodiscard]] constexpr auto rsplit(char c) const noexcept {
+  [[nodiscard]] constexpr auto rsplit(char c) const {
     struct pair {
       view before;
       view after;
@@ -112,13 +112,13 @@ public:
     return pair{{}, *this};
   }
 
-  [[nodiscard]] constexpr char operator[](unsigned idx) const noexcept {
+  [[nodiscard]] constexpr char operator[](unsigned idx) const {
     if (idx >= m_len)
       return 0;
     return m_data[idx];
   }
 
-  [[nodiscard]] constexpr view trim() const noexcept {
+  [[nodiscard]] constexpr view trim() const {
     auto d = m_data;
     auto l = m_len;
     while (l > 0 && *d == ' ') {
@@ -138,7 +138,7 @@ public:
   }
 };
 
-[[nodiscard]] constexpr bool operator==(const view &a, const view &b) noexcept {
+[[nodiscard]] constexpr bool operator==(const view &a, const view &b) {
   if (a.size() != b.size())
     return false;
 
@@ -151,7 +151,7 @@ public:
 } // namespace jute
 
 export namespace jute::literals {
-[[nodiscard]] constexpr view operator""_s(const char *v, size_t size) noexcept {
+[[nodiscard]] constexpr view operator""_s(const char *v, size_t size) {
   return view{v, size};
 }
 } // namespace jute::literals
