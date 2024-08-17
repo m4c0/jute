@@ -70,6 +70,9 @@ public:
   }
 
   [[nodiscard]] constexpr view operator*() const { return m_view; }
+  [[nodiscard]] constexpr auto begin() const { return m_view.begin(); }
+  [[nodiscard]] constexpr auto end() const { return m_view.end(); }
+  [[nodiscard]] constexpr auto size() const { return m_view.size(); }
 
   [[nodiscard]] constexpr heap operator+(view o) const {
     const auto len = m_view.size() + o.size();
