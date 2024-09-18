@@ -49,7 +49,7 @@ public:
     o.reset();
   }
   constexpr heap &operator=(const heap &o) {
-    if (m_refcnt == o.m_refcnt)
+    if (m_refcnt == o.m_refcnt && m_refcnt)
       return *this;
 
     dec_ref();
@@ -59,7 +59,7 @@ public:
     return *this;
   }
   constexpr heap &operator=(heap &&o) {
-    if (m_refcnt == o.m_refcnt)
+    if (m_refcnt == o.m_refcnt && m_refcnt)
       return *this;
 
     dec_ref();
