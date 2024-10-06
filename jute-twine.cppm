@@ -16,57 +16,45 @@ public:
   constexpr twine(view a, view b) : m_v{a, b} {}
 
   [[nodiscard]] constexpr unsigned size() const {
-    unsigned s{};
-    for (auto v : m_v)
-      s += v.size();
+    unsigned s {};
+    for (auto v : m_v) s += v.size();
     return s;
   }
 
   [[nodiscard]] constexpr hai::cstr cstr() const {
-    hai::cstr res{size()};
+    hai::cstr res { size() };
     auto ptr = res.begin();
     for (auto v : m_v) {
-      for (auto c : v) {
-        *ptr++ = c;
-      }
+      for (auto c : v) *ptr++ = c;
     }
     return res;
   }
 
   [[nodiscard]] constexpr char operator[](unsigned idx) const {
     for (auto v : m_v) {
-      if (idx < v.size())
-        return v[idx];
+      if (idx < v.size()) return v[idx];
       idx -= v.size();
     }
     return 0;
   }
 
   [[nodiscard]] constexpr twine<N + 1> operator+(const view &o) const {
-    twine<N + 1> res{};
-    for (auto i = 0; i < N; i++) {
-      res.m_v[i] = m_v[i];
-    }
+    twine<N + 1> res {};
+    for (auto i = 0; i < N; i++) res.m_v[i] = m_v[i];
     res.m_v[N] = o;
     return res;
   }
   template <unsigned M>
   [[nodiscard]] constexpr twine<M + N> operator+(const twine<M> &o) const {
-    twine<N + M> res{};
-    for (auto i = 0; i < N; i++) {
-      res.m_v[i] = m_v[i];
-    }
-    for (auto i = 0; i < M; i++) {
-      res.m_v[i + N] = o.m_v[i];
-    }
+    twine<N + M> res {};
+    for (auto i = 0; i < N; i++) res.m_v[i] = m_v[i];
+    for (auto i = 0; i < M; i++) res.m_v[i + N] = o.m_v[i];
     return res;
   }
 
   [[nodiscard]] constexpr operator heap() const {
-    heap res{};
-    for (auto v : m_v) {
-      res = res + v;
-    }
+    heap res {};
+    for (auto v : m_v) res = res + v;
     return res;
   }
 };
