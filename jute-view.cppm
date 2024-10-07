@@ -30,26 +30,21 @@ public:
   [[nodiscard]] constexpr auto cstr() const {
     hai::cstr res{static_cast<unsigned>(size())};
     auto ptr = res.begin();
-    for (auto c : *this) {
-      *ptr++ = c;
-    }
+    for (auto c : *this) *ptr++ = c;
     return res;
   }
 
   [[nodiscard]] constexpr auto index_of(char c) const {
     for (auto i = 0; i < m_len; i++)
-      if (m_data[i] == c)
-        return i;
+      if (m_data[i] == c) return i;
 
     return -1;
   }
   [[nodiscard]] constexpr bool starts_with(jute::view o) {
-    if (size() < o.size())
-      return false;
+    if (size() < o.size()) return false;
 
     for (auto i = 0; i < o.size(); i++)
-      if (m_data[i] != o[i])
-        return false;
+      if (m_data[i] != o[i]) return false;
 
     return true;
   }
@@ -59,8 +54,7 @@ public:
       view before;
       view after;
     };
-    if (idx >= m_len)
-      return pair{*this, {}};
+    if (idx >= m_len) return pair { *this, {} };
     return pair{
         .before = {m_data, idx},
         .after = {m_data + idx, m_len - idx},
@@ -72,12 +66,10 @@ public:
       view middle;
       view after;
     };
-    if (idx >= m_len)
-      return trio{*this, {}, {}};
+    if (idx >= m_len) return trio { *this, {}, {} };
 
     auto [b, mm] = subview(idx);
-    if (idx + sz >= m_len)
-      return trio{b, mm, {}};
+    if (idx + sz >= m_len) return trio { b, mm, {} };
 
     auto [m, a] = mm.subview(sz);
     return trio{b, m, a};
@@ -88,8 +80,7 @@ public:
       view after;
     };
     for (auto i = 0U; i < m_len; i++) {
-      if (m_data[i] != c)
-        continue;
+      if (m_data[i] != c) continue;
 
       return pair{.before = {m_data, i},
                   .after = {m_data + i + 1, m_len - i - 1}};
@@ -103,8 +94,7 @@ public:
     };
     for (auto i = m_len; i > 0; i--) {
       auto j = i - 1;
-      if (m_data[j] != c)
-        continue;
+      if (m_data[j] != c) continue;
 
       return pair{.before = {m_data, j},
                   .after = {m_data + j + 1, m_len - j - 1}};
@@ -113,8 +103,7 @@ public:
   }
 
   [[nodiscard]] constexpr char operator[](unsigned idx) const {
-    if (idx >= m_len)
-      return 0;
+    if (idx >= m_len) return 0;
     return m_data[idx];
   }
 
@@ -125,26 +114,22 @@ public:
       d++;
       l--;
     }
-    while (l > 0 && d[l - 1] == ' ')
-      --l;
-    return {d, l};
+    while (l > 0 && d[l - 1] == ' ') --l;
+    return { d, l };
   }
 
   [[nodiscard]] static constexpr view unsafe(const char *str) {
     auto i = 0U;
-    while (str[i])
-      i++;
+    while (str[i]) i++;
     return view{str, i};
   }
 };
 
 [[nodiscard]] constexpr bool operator==(const view &a, const view &b) {
-  if (a.size() != b.size())
-    return false;
+  if (a.size() != b.size()) return false;
 
   for (auto i = 0; i < a.size(); i++)
-    if (a[i] != b[i])
-      return false;
+    if (a[i] != b[i]) return false;
 
   return true;
 }
