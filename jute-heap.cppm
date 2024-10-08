@@ -15,8 +15,7 @@ class heap {
   constexpr heap(view v, unsigned *r) : m_view{v}, m_refcnt{r} {}
 
   constexpr void inc_ref() {
-    if (m_refcnt != nullptr)
-      (*m_refcnt)++;
+    if (m_refcnt != nullptr) (*m_refcnt)++;
   }
   constexpr void dec_ref() {
     if (m_refcnt != nullptr && (--(*m_refcnt) == 0)) {
@@ -36,9 +35,7 @@ public:
   constexpr heap(view v) : m_refcnt{new unsigned{1}} {
     auto *data = new char[v.size()]; // NOLINT
     m_view = view{data, v.size()};
-    for (auto c : v) {
-      *data++ = c;
-    }
+    for (auto c : v) *data++ = c;
   }
   constexpr heap(no_copy, view v) : m_view{v} {}
 
@@ -49,8 +46,7 @@ public:
     o.reset();
   }
   constexpr heap &operator=(const heap &o) {
-    if (m_refcnt == o.m_refcnt && m_refcnt)
-      return *this;
+    if (m_refcnt == o.m_refcnt && m_refcnt) return *this;
 
     dec_ref();
     m_view = o.m_view;
@@ -59,8 +55,7 @@ public:
     return *this;
   }
   constexpr heap &operator=(heap &&o) {
-    if (m_refcnt == o.m_refcnt && m_refcnt)
-      return *this;
+    if (m_refcnt == o.m_refcnt && m_refcnt) return *this;
 
     dec_ref();
     m_view = o.m_view;
@@ -78,12 +73,8 @@ public:
     const auto len = m_view.size() + o.size();
     auto *data = new char[len]; // NOLINT
     auto v = view{data, len};
-    for (auto c : m_view) {
-      *data++ = c;
-    }
-    for (auto c : o) {
-      *data++ = c;
-    }
+    for (auto c : m_view) *data++ = c;
+    for (auto c : o) *data++ = c;
     return heap{v, new unsigned{1}};
   }
 
@@ -101,8 +92,7 @@ public:
 } // namespace jute
 
 export namespace jute::literals {
-[[nodiscard]] inline constexpr heap operator"" _hs(const char *c,
-                                                   traits::size_t len) {
+[[nodiscard]] inline constexpr heap operator"" _hs(const char *c, traits::size_t len) {
   return heap{no_copy{}, view{c, len}};
 }
 } // namespace jute::literals
