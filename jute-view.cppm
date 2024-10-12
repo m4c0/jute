@@ -170,16 +170,16 @@ static_assert(!"x"_s.starts_with("y"));
 static_assert([] {
   const auto &[a, b] = "jute"_s.subview(2);
   return a == "ju"_s && b == "te"_s;
-});
+}());
 
 static_assert([] {
   const auto &[a, b, c] = "jute"_s.subview(2, 1);
   return a == "ju"_s && b == "t"_s && c == "e"_s;
-});
+}());
 static_assert([] {
   const auto &[a, b, c] = "jute"_s.subview(2, 0);
   return a == "ju"_s && b == ""_s && c == "te"_s;
-});
+}());
 
 static_assert([] {
   const auto &[a, b] = "love"_s.split('/');
