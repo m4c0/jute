@@ -48,6 +48,15 @@ public:
 
     return true;
   }
+  [[nodiscard]] constexpr bool ends_with(jute::view o) {
+    if (size() < o.size()) return false;
+
+    auto d = m_data + size() - o.size();
+    for (auto i = 0; i < o.size(); i++)
+      if (d[i] != o[i]) return false;
+
+    return true;
+  }
 
   [[nodiscard]] constexpr auto subview(unsigned idx) const {
     struct pair {
@@ -166,6 +175,11 @@ static_assert("abcd"_s.starts_with("ab"));
 static_assert("abcd"_s.starts_with("abcd"));
 static_assert(!"abcd"_s.starts_with("abcde"));
 static_assert(!"x"_s.starts_with("y"));
+
+static_assert("abcd"_s.ends_with("cd"));
+static_assert("abcd"_s.ends_with("abcd"));
+static_assert(!"abcd"_s.ends_with("abcde"));
+static_assert(!"x"_s.ends_with("y"));
 
 static_assert([] {
   const auto &[a, b] = "jute"_s.subview(2);
