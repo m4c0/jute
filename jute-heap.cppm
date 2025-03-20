@@ -102,6 +102,8 @@ using namespace jute::literals;
 static_assert((*""_hs).size() == 0);
 static_assert(*"a"_hs == "a");
 static_assert("test"_hs == "test"_hs);
+static_assert(jute::heap{} + "bb"_hs == "bb"_hs);
+static_assert(jute::heap{} + "bb"_s == "bb"_hs);
 static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
 static_assert(*(traits::move("a"_hs)) == "a");
 static_assert(jute::heap{"asd"_s} == "asd"_hs);
