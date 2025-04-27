@@ -18,6 +18,9 @@ public:
   constexpr view(const hai::cstr &str)
       : m_data{str.data()}
       , m_len{str.size()} {}
+  constexpr view(const hai::array<char> &str)
+      : m_data{str.begin()}
+      , m_len{str.size()} {}
 
   template <unsigned N> constexpr view(const char (&c)[N]) : view(c, N - 1) {}
 
