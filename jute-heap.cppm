@@ -92,7 +92,7 @@ public:
 } // namespace jute
 
 export namespace jute::literals {
-[[nodiscard]] inline constexpr heap operator"" _hs(const char *c, traits::size_t len) {
+[[nodiscard]] inline constexpr heap operator""_hs(const char *c, traits::size_t len) {
   return heap{no_copy{}, view{c, len}};
 }
 } // namespace jute::literals
