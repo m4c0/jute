@@ -43,7 +43,7 @@ public:
 
     return -1;
   }
-  [[nodiscard]] constexpr bool starts_with(jute::view o) {
+  [[nodiscard]] constexpr bool starts_with(jute::view o) const {
     if (size() < o.size()) return false;
 
     for (auto i = 0; i < o.size(); i++)
@@ -51,7 +51,7 @@ public:
 
     return true;
   }
-  [[nodiscard]] constexpr bool ends_with(jute::view o) {
+  [[nodiscard]] constexpr bool ends_with(jute::view o) const {
     if (size() < o.size()) return false;
 
     auto d = m_data + size() - o.size();
