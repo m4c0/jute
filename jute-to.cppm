@@ -4,7 +4,7 @@ import :view;
 namespace jute {
   export struct invalid_number {};
   export constexpr auto to_u32(jute::view v) {
-    int res = 0;
+    unsigned res = 0;
     for (auto c : v) {
       if (c < '0' || c > '9') throw invalid_number {};
       res = res * 10 + (c - '0');
