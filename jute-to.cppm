@@ -14,6 +14,14 @@ namespace jute {
   static_assert(to_u32("0") == 0);
   static_assert(to_u32("129302") == 129302);
 
+  export constexpr auto to_i32(jute::view v) {
+    if (v.size() && v[0] != '-') return to_u32(v);
+    return -to_u32(v.subview(1).after);
+  }
+  static_assert(to_i32("0") == 0);
+  static_assert(to_i32("830") == 830);
+  static_assert(to_i32("-123") == -123);
+
   export constexpr float to_f(jute::view v) {
     const auto take = [&] { v = v.subview(1).after; };
 
