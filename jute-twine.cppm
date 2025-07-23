@@ -57,6 +57,15 @@ public:
     for (auto v : m_v) res = res + v;
     return res;
   }
+
+  [[nodiscard]] constexpr bool starts_with(jute::view prefix) const {
+    for (auto v : m_v) {
+      auto [l, r] = prefix.subview(v.size());
+      if (!v.starts_with(l)) return false;
+      prefix = r;
+    }
+    return prefix.size() == 0;
+  }
 };
 twine()->twine<0>;
 twine(view)->twine<1>;
@@ -101,6 +110,15 @@ static_assert(twine{"j"_s} + twine{"u"_s} + twine{"t"_s} + twine{"e"_s} ==
               twine{"jute"_s});
 static_assert("ju"_s + "te"_s != "aut"_s + "e"_s);
 static_assert("ju"_s + "te"_s != "jut"_s + "a"_s);
+
+static_assert(twine{"jute"_s}.starts_with("jute"));
+static_assert(twine{"jute"_s}.starts_with("jut"));
+static_assert(!twine{"jute"_s}.starts_with("jup"));
+static_assert(!twine{"jute"_s}.starts_with("jutey"));
+static_assert(("j"_s + "u"_s + "te"_s).starts_with("jute"));
+static_assert(("j"_s + "u"_s + "te"_s + "!!"_s).starts_with("jut"));
+static_assert(!("j"_s + "u"_s + "te"_s).starts_with("jub"));
+static_assert(!("j"_s + "u"_s + "te"_s).starts_with("jutey"));
 
 static_assert([] {
   // tests if we can use twine and its size in constexpr
