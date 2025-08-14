@@ -145,6 +145,13 @@ public:
 
   return true;
 }
+[[nodiscard]] constexpr int operator<=>(const view &a, const view &b) {
+  for (auto i = 0; i < a.size() && i < b.size(); i++) {
+    if (a[i] == b[i]) continue;
+    return a[i] < b[i] ? -1 : 1;
+  }
+  return a.size() - b.size();
+}
 } // namespace jute
 
 export namespace jute::literals {
@@ -224,6 +231,19 @@ static_assert("   abc  "_s.trim() == "abc");
 static_assert(" abc 234 "_s.trim() == "abc 234");
 static_assert("   "_s.trim() == "");
 static_assert(""_s.trim() == "");
+
+static_assert(  "abc"_s  <  "bcd"_s  );
+static_assert(  "abc"_s  <  "bcde"_s );
+static_assert(!("bcd"_s  <  "abc"_s ));
+static_assert(!("bcde"_s <  "abc"_s ));
+static_assert(  "bcd"_s  >  "abc"_s  );
+static_assert(  "bcde"_s >  "abc"_s  );
+static_assert(!("abc"_s  >  "bcd"_s ));
+static_assert(!("abc"_s  >  "bcde"_s));
+static_assert(  "abc"_s  <= "abc"_s  );
+static_assert(!("abcd"_s <= "abc"_s ));
+static_assert(  "abc"_s  >= "abc"_s  );
+static_assert(!("abc"_s  >= "abcd"_s));
 } // namespace
 
 static_assert([] {
