@@ -39,6 +39,9 @@ public:
   }
   constexpr heap(no_copy, view v) : m_view{v} {}
 
+  // TODO: any way to safely use "no_copy"?
+  template <unsigned N> constexpr heap(const char (&c)[N]) : heap(view { c }) {}
+
   constexpr heap(const heap &o) : m_view{o.m_view}, m_refcnt{o.m_refcnt} {
     inc_ref();
   }
@@ -106,6 +109,7 @@ static_assert(*(traits::move("a"_hs)) == "a");
 static_assert(jute::heap{"asd"_s} == "asd"_hs);
 static_assert("aaa"_hs + "bb"_s + "c" + 'd' == "aaabbcd"_hs);
 static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
+static_assert(jute::heap{"alright"} == "alright"_hs);
 
 static_assert([] {
   // Checks if we can copy heap-allocated over heap-allocated
