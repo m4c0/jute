@@ -32,7 +32,7 @@ public:
   constexpr heap() = default;
   constexpr ~heap() { dec_ref(); }
 
-  constexpr heap(view v) : m_refcnt{new unsigned{1}} {
+  explicit constexpr heap(view v) : m_refcnt{new unsigned{1}} {
     auto *data = new char[v.size()]; // NOLINT
     m_view = view{data, v.size()};
     for (auto c : v) *data++ = c;
@@ -78,9 +78,6 @@ public:
     return heap{v, new unsigned{1}};
   }
 
-  [[nodiscard]] constexpr heap operator+(const heap &o) const {
-    return *this + *o;
-  }
   [[nodiscard]] constexpr heap operator+(char c) const {
     return *this + view{&c, 1};
   }
@@ -108,6 +105,7 @@ static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
 static_assert(*(traits::move("a"_hs)) == "a");
 static_assert(jute::heap{"asd"_s} == "asd"_hs);
 static_assert("aaa"_hs + "bb"_s + "c" + 'd' == "aaabbcd"_hs);
+static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
 
 static_assert([] {
   // Checks if we can copy heap-allocated over heap-allocated
