@@ -15,10 +15,7 @@ class view {
 public:
   constexpr view() = default;
   constexpr view(const char *v, size_t s) : m_data{v}, m_len{s} {}
-  constexpr view(const hai::cstr &str)
-      : m_data{str.data()}
-      , m_len{str.size()} {}
-  constexpr view(const hai::array<char> &str)
+  constexpr view(const auto & str)
       : m_data{str.begin()}
       , m_len{str.size()} {}
 
