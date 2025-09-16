@@ -70,20 +70,8 @@ public:
   [[nodiscard]] constexpr view operator*() const { return m_view; }
   [[nodiscard]] constexpr auto begin() const { return m_view.begin(); }
   [[nodiscard]] constexpr auto end() const { return m_view.end(); }
+  [[nodiscard]] constexpr auto data() const { return m_view.data(); }
   [[nodiscard]] constexpr auto size() const { return m_view.size(); }
-
-  [[nodiscard]] constexpr heap operator+(view o) const {
-    const auto len = m_view.size() + o.size();
-    auto *data = new char[len]; // NOLINT
-    auto v = view{data, len};
-    for (auto c : m_view) *data++ = c;
-    for (auto c : o) *data++ = c;
-    return heap{v, new unsigned{1}};
-  }
-
-  [[nodiscard]] constexpr heap operator+(char c) const {
-    return *this + view{&c, 1};
-  }
 
   [[nodiscard]] constexpr bool operator==(const heap &o) const {
     return **this == *o;
@@ -102,19 +90,7 @@ using namespace jute::literals;
 static_assert((*""_hs).size() == 0);
 static_assert(*"a"_hs == "a");
 static_assert("test"_hs == "test"_hs);
-static_assert(jute::heap{} + "bb"_hs == "bb"_hs);
-static_assert(jute::heap{} + "bb"_s == "bb"_hs);
-static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
 static_assert(*(traits::move("a"_hs)) == "a");
 static_assert(jute::heap{"asd"_s} == "asd"_hs);
-static_assert("aaa"_hs + "bb"_s + "c" + 'd' == "aaabbcd"_hs);
-static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
 static_assert(jute::heap{"alright"} == "alright"_hs);
-
-static_assert([] {
-  // Checks if we can copy heap-allocated over heap-allocated
-  jute::heap a = "1"_hs + "2"_s;
-  a = a + "3"_s;
-  return a == "123"_hs;
-}());
 } // namespace

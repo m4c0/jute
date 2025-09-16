@@ -53,9 +53,8 @@ public:
   }
 
   [[nodiscard]] constexpr operator heap() const {
-    heap res {};
-    for (auto v : m_v) res = res + v;
-    return res;
+    // TODO: void this implicit double-copy
+    return heap{cstr()};
   }
 
   [[nodiscard]] constexpr bool starts_with(jute::view prefix) const {
@@ -130,4 +129,14 @@ static_assert([] {
 static_assert(view{("jute"_s + " "_s + "twine"_s).cstr()} == "jute twine"_s);
 
 static_assert(heap{"jute"_s + " "_s + "twine"_s} == "jute twine"_hs);
+
+static_assert(heap{} + "bb"_hs == "bb"_hs);
+static_assert(heap{} + "bb"_s == "bb"_hs);
+static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
+static_assert([] {
+  // Checks if we can copy heap-allocated over heap-allocated
+  heap a = "1"_hs + "2"_s;
+  a = a + "3"_s;
+  return a == "123"_hs;
+}());
 } // namespace

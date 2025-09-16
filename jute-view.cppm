@@ -16,7 +16,7 @@ public:
   constexpr view() = default;
   constexpr view(const char *v, size_t s) : m_data{v}, m_len{s} {}
   constexpr view(const auto & str)
-      : m_data{str.begin()}
+      : m_data{str.data()}
       , m_len{str.size()} {}
 
   template <unsigned N> constexpr view(const char (&c)[N]) : view(c, N - 1) {}
