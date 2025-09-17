@@ -132,6 +132,7 @@ static_assert(heap{"jute"_s + " "_s + "twine"_s} == "jute twine"_hs);
 
 static_assert(heap{} + "bb"_hs == "bb"_hs);
 static_assert(heap{} + "bb"_s == "bb"_hs);
+static_assert(heap{} + "bb" == "bb"_hs);
 static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
 static_assert([] {
   // Checks if we can copy heap-allocated over heap-allocated
