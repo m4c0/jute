@@ -15,6 +15,18 @@ class view {
 public:
   constexpr view() = default;
   constexpr view(const char *v, size_t s) : m_data{v}, m_len{s} {}
+  //***************************************************************************
+  // Note this implicit conversion is useful, but it is dangerous if we wrap a
+  // temporary variable holding the ownership of the underlying string.
+  //
+  // Example:
+  //   auto twine = jute::heap { some_view } + other_view
+  //   use(twine.cstr());
+  //
+  // "twine" will contain a view created from the heap, but the heap will have
+  // its underlying copy deleted after the line finishes running. So the
+  // implicitly created jute::view from that "heap" will be an invalid pointer.
+  //***************************************************************************
   constexpr view(const auto & str)
       : m_data{str.data()}
       , m_len{str.size()} {}
