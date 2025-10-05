@@ -5,6 +5,12 @@ import traits;
 export namespace jute {
 using traits::size_t;
 
+template<typename T>
+concept stringish = requires (T t, const char * c, size_t len) {
+  c = t.data();
+  len = t.size();
+};
+
 /// Holds a pointer to a string (aka char array) and its size. This is intended
 /// to be a non-owning pointer holder. As consequences, it should not outlive
 /// the original pointer.
@@ -15,6 +21,7 @@ class view {
 public:
   constexpr view() = default;
   constexpr view(const char *v, size_t s) : m_data{v}, m_len{s} {}
+
   //***************************************************************************
   // Note this implicit conversion is useful, but it is dangerous if we wrap a
   // temporary variable holding the ownership of the underlying string.
@@ -27,7 +34,7 @@ public:
   // its underlying copy deleted after the line finishes running. So the
   // implicitly created jute::view from that "heap" will be an invalid pointer.
   //***************************************************************************
-  constexpr view(const auto & str)
+  constexpr view(const stringish auto & str)
       : m_data{str.data()}
       , m_len{str.size()} {}
 
