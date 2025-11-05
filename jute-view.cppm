@@ -1,9 +1,8 @@
 export module jute:view;
 import hai;
-import traits;
 
 export namespace jute {
-using traits::size_t;
+using size_t = decltype(sizeof(0));
 
 template<typename T>
 concept stringish = requires (T t, const char * c, size_t len) {
