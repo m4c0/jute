@@ -51,9 +51,9 @@ public:
     return res;
   }
 
-  [[nodiscard]] constexpr operator heap() const {
-    // TODO: void this implicit double-copy
-    return heap{cstr()};
+  [[nodiscard]] constexpr bool operator==(jute::view v) const {
+    if (v.size() != size()) return false;
+    return starts_with(v);
   }
 
   [[nodiscard]] constexpr bool starts_with(jute::view prefix) const {
@@ -118,6 +118,14 @@ static_assert(("j"_s + "u"_s + "te"_s + "!!"_s).starts_with("jut"));
 static_assert(!("j"_s + "u"_s + "te"_s).starts_with("jub"));
 static_assert(!("j"_s + "u"_s + "te"_s).starts_with("jutey"));
 
+static_assert(twine{"jute"_s} != "heap"_s);
+static_assert(twine{"jute"_s} == "jute"_s);
+static_assert(twine{"jute"_s} != "jutey"_s);
+static_assert(twine{"jute"_s} != "jut"_s);
+static_assert(("j"_s + "u"_s + "te"_s) == "jute"_s);
+static_assert(("j"_s + "u"_s + "te"_s) != "jutey"_s);
+static_assert(("j"_s + "u"_s + "te"_s + "!!"_s) != "jut");
+
 static_assert([] {
   // tests if we can use twine and its size in constexpr
   constexpr twine t{"jute"_s};
@@ -127,16 +135,8 @@ static_assert([] {
 
 static_assert(view{("jute"_s + " "_s + "twine"_s).cstr()} == "jute twine"_s);
 
-static_assert(heap{"jute"_s + " "_s + "twine"_s} == "jute twine"_hs);
-
-static_assert(heap{} + "bb"_hs == "bb"_hs);
-static_assert(heap{} + "bb"_s == "bb"_hs);
-static_assert(heap{} + "bb" == "bb"_hs);
-static_assert("aaa"_hs + "bb"_hs == "aaabb"_hs);
-static_assert([] {
-  // Checks if we can copy heap-allocated over heap-allocated
-  heap a = "1"_hs + "2"_s;
-  a = a + "3"_s;
-  return a == "123"_hs;
-}());
+static_assert(heap{} + "bb"_hs == "bb"_s);
+static_assert(heap{} + "bb"_s == "bb"_s);
+static_assert(heap{} + "bb" == "bb"_s);
+static_assert("aaa"_hs + "bb"_hs == "aaabb"_s);
 } // namespace
