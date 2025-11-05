@@ -2,7 +2,6 @@ export module jute:twine;
 import :heap;
 import :view;
 import hai;
-import traits;
 
 export namespace jute {
 template <unsigned N> class twine {
