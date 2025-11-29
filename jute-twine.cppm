@@ -28,6 +28,13 @@ public:
     }
     return res;
   }
+  [[nodiscard]] constexpr heap heap() const {
+    auto sz = size();
+    char * buf = new char[sz];
+    char * ptr = buf;
+    for (auto v : m_v) for (auto c : v) *ptr++ = c;
+    return { owned {}, { buf, sz } };
+  }
 
   [[nodiscard]] constexpr char operator[](unsigned idx) const {
     for (auto v : m_v) {
