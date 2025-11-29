@@ -3,10 +3,11 @@ import :view;
 
 export namespace jute {
 struct no_copy {};
+struct owned {};
 
-/// Manages a string that maybe allocated on the heap. It will deallocate heap
-/// strings in its dtor, but it won't try to deallocate if the string is not
-/// from heap.
+/// Manages a constant string that maybe allocated on the heap. It will
+/// deallocate heap strings in its dtor, but it won't try to deallocate if the
+/// string is not from heap.
 class heap {
   view m_view{};
   unsigned *m_refcnt{};
@@ -31,6 +32,10 @@ public:
   constexpr heap() = default;
   constexpr ~heap() { dec_ref(); }
 
+  constexpr heap(owned, view v) :
+    m_view { v }
+  , m_refcnt { new unsigned { 1 } }
+  {}
   explicit constexpr heap(view v) : m_refcnt{new unsigned{1}} {
     auto *data = new char[v.size()]; // NOLINT
     m_view = view{data, v.size()};
@@ -92,4 +97,9 @@ static_assert("test"_hs == "test"_hs);
 static_assert(*(traits::move("a"_hs)) == "a");
 static_assert(jute::heap{"asd"_s} == "asd"_hs);
 static_assert(jute::heap{"alright"} == "alright"_hs);
+
+static_assert([] {
+  char * buf = new char[3] { 'o', 'x', 'i' };
+  return jute::heap { jute::owned {}, { buf, 3 } } == "oxi";
+}());
 } // namespace
