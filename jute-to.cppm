@@ -1,4 +1,6 @@
 export module jute:to;
+import :heap;
+import :twine;
 import :view;
 
 namespace jute {
@@ -7,7 +9,7 @@ namespace jute {
     T result;
     bool consumed_all;
   };
-  export constexpr pair<unsigned> to_u32(jute::view v) {
+  export constexpr pair<unsigned> to_u32(view v) {
     unsigned res = 0;
     for (auto c : v) {
       if (c < '0' || c > '9') return { res, false };
@@ -18,7 +20,7 @@ namespace jute {
   static_assert(to_u32("0").result == 0);
   static_assert(to_u32("129302").result == 129302);
 
-  export constexpr pair<signed> to_i32(jute::view v) {
+  export constexpr pair<signed> to_i32(view v) {
     int mult = (v.size() && v[0] != '-') ? 1 : -1;
     auto vv = (v.size() && v[0] != '-') ? v : v.subview(1).after;
     auto [res, all] = to_u32(vv);
@@ -29,7 +31,7 @@ namespace jute {
   static_assert(to_i32("-123").result == -123);
 
   // TODO: accept partials
-  export constexpr pair<float> to_f(jute::view v) {
+  export constexpr pair<float> to_f(view v) {
     const auto take = [&] { v = v.subview(1).after; };
 
     bool negative = v[0] == '-';
@@ -90,5 +92,46 @@ namespace jute {
   static_assert(to_f("-0.1e2").result == -10.0f);
   static_assert(to_f(".1e+2").result == 10.0f);
   static_assert(to_f("100.0e-1").result == 10.0f);
-}
 
+  export constexpr heap to_s(long long val) {
+    if (val == 0) return "0";
+
+    auto negative = val < 0;
+    unsigned long long n = negative ? -val : val;
+
+    static constexpr const auto sz = 32;
+    char buf[sz] {};
+    auto p = buf + sz - 1;
+    while (n) {
+      *p-- = (n % 10) + '0';
+      n /= 10;
+    }
+    if (negative) *p-- = '-';
+    auto l = static_cast<unsigned>(buf + sz - 1 - p);
+    return heap { view { p + 1, l } };
+  }
+  static_assert(to_s(0) == "0");
+  static_assert(to_s(1) == "1");
+  static_assert(to_s(123) == "123");
+  static_assert(to_s(-98) == "-98");
+
+  export constexpr heap to_s(double val) {
+    auto is = to_s(static_cast<long long>(val));
+
+    auto tmp = to_s(static_cast<long long>(val * 1000.0 + 1000.0));
+    auto fs = (*tmp).subview(tmp.size() - 3).after;
+
+    return (is + "." + fs).heap();
+  }
+  static_assert(to_s(0.0) == "0.000");
+  static_assert(to_s(1.0) == "1.000");
+  static_assert(to_s(123.0) == "123.000");
+  static_assert(to_s(-98.0) == "-98.000");
+  static_assert(to_s(12.3) == "12.300"); // 12.300001
+  static_assert(to_s(2.3) == "2.300"); // 2.299999
+  static_assert(to_s(0.001) == "0.001");
+
+  export constexpr view to_s(sv val) { return val; }
+
+  export constexpr heap to_s(int val) { return to_s(static_cast<long long>(val)); }
+}
