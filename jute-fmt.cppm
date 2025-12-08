@@ -4,7 +4,7 @@ import :to;
 import sv;
 import traits;
 
-namespace {
+namespace jute::fmt_impl {
   struct lit {
     const char * str;
     unsigned len;
@@ -28,7 +28,7 @@ namespace {
   template<> consteval lit needle<int      >() { return "d"; }
   template<> consteval lit needle<sv       >() { return "s"; }
 
-  static consteval unsigned p_idx(const char * hs, unsigned hl, lit needle) {
+  consteval unsigned p_idx(const char * hs, unsigned hl, lit needle) {
     for (auto i = 0; i < hl - needle.len; i++) {
       if (hs[i] != '%') continue;
 
@@ -70,14 +70,14 @@ namespace {
     return v0 == "aa" && v1 == "aaa" && ii.f == "aaaa";
   }());
 
-  static constexpr jute::heap to_s(auto && n) { return jute::to_s(n); }
-  static constexpr jute::heap to_s(sv n) { return jute::heap { jute::no_copy {}, n }; }
+  constexpr jute::heap ptos(auto && n) { return jute::to_s(n); }
+  constexpr jute::heap ptos(sv n) { return jute::heap { jute::no_copy {}, n }; }
 
   template<const char * Str, unsigned Len, typename... T>
   struct mask {
     static constexpr jute::heap fmt(T &&... n) {
       static constexpr const indices<Str, Len, T...> idxs {};
-      jute::heap vals[] { to_s(traits::fwd<T>(n))... };
+      jute::heap vals[] { ptos(traits::fwd<T>(n))... };
 
       unsigned len = idxs.f.size();
       for (auto & v : vals) len += v.size();
@@ -97,8 +97,8 @@ namespace {
 }
 
 namespace jute {
-  export template<lit2 Msk, typename... T> constexpr jute::heap fmt(T &&... n) {
-    return mask<Msk.str, Msk.len, T...>::fmt(traits::fwd<T>(n)...);
+  export template<fmt_impl::lit2 Msk, typename... T> constexpr jute::heap fmt(T &&... n) {
+    return fmt_impl::mask<Msk.str, Msk.len, T...>::fmt(traits::fwd<T>(n)...);
   }
   static_assert(fmt<"%d">(123) == "123");
   static_assert(fmt<"val = %d...">(123ll) == "val = 123...");
