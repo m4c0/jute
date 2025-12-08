@@ -52,7 +52,7 @@ namespace {
       sv f;
 
       consteval indices() {
-        lit needles[] { needle<T>()... };
+        lit needles[] { needle<traits::decay_t<T>>()... };
         auto str = Str;
         auto len = Len;
         for (auto i = 0; i < sizeof...(T); i++) {
