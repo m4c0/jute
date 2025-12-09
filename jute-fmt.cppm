@@ -24,9 +24,13 @@ namespace jute::fmt_impl {
 
   template<typename T> consteval lit needle();
   template<> consteval lit needle<double   >() { return "f"; }
-  template<> consteval lit needle<long long>() { return "d"; }
+  template<> consteval lit needle<float    >() { return "f"; }
+  template<> consteval lit needle<heap     >() { return "s"; }
   template<> consteval lit needle<int      >() { return "d"; }
+  template<> consteval lit needle<long long>() { return "d"; }
   template<> consteval lit needle<sv       >() { return "s"; }
+  template<> consteval lit needle<unsigned >() { return "d"; }
+  template<> consteval lit needle<view     >() { return "s"; }
 
   consteval unsigned p_idx(const char * hs, unsigned hl, lit needle) {
     for (auto i = 0; i < hl - needle.len; i++) {
@@ -70,7 +74,8 @@ namespace jute::fmt_impl {
     return v0 == "aa" && v1 == "aaa" && ii.f == "aaaa";
   }());
 
-  constexpr jute::heap ptos(auto && n) { return jute::to_s(n); }
+  constexpr jute::heap ptos(auto && n) { return jute::to_s(traits::fwd<decltype(n)>(n)); }
+  constexpr jute::heap ptos(jute::heap n) { return n; }
   constexpr jute::heap ptos(sv n) { return jute::heap { jute::no_copy {}, n }; }
 
   template<const char * Str, unsigned Len, typename... T>

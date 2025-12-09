@@ -93,6 +93,23 @@ namespace jute {
   static_assert(to_f(".1e+2").result == 10.0f);
   static_assert(to_f("100.0e-1").result == 10.0f);
 
+  export constexpr heap to_s(unsigned long long n) {
+    if (n == 0) return "0";
+
+    static constexpr const auto sz = 32;
+    char buf[sz] {};
+    auto p = buf + sz - 1;
+    while (n) {
+      *p-- = (n % 10) + '0';
+      n /= 10;
+    }
+    auto l = static_cast<unsigned>(buf + sz - 1 - p);
+    return heap { view { p + 1, l } };
+  }
+  static_assert(to_s(0ULL) == "0");
+  static_assert(to_s(1ULL) == "1");
+  static_assert(to_s(123ULL) == "123");
+
   export constexpr heap to_s(long long val) {
     if (val == 0) return "0";
 
@@ -110,10 +127,10 @@ namespace jute {
     auto l = static_cast<unsigned>(buf + sz - 1 - p);
     return heap { view { p + 1, l } };
   }
-  static_assert(to_s(0) == "0");
-  static_assert(to_s(1) == "1");
-  static_assert(to_s(123) == "123");
-  static_assert(to_s(-98) == "-98");
+  static_assert(to_s(0LL) == "0");
+  static_assert(to_s(1LL) == "1");
+  static_assert(to_s(123LL) == "123");
+  static_assert(to_s(-98LL) == "-98");
 
   export constexpr heap to_s(double val) {
     auto is = to_s(static_cast<long long>(val));
@@ -131,7 +148,8 @@ namespace jute {
   static_assert(to_s(2.3) == "2.300"); // 2.299999
   static_assert(to_s(0.001) == "0.001");
 
-  export constexpr view to_s(sv val) { return val; }
+  export constexpr inline view to_s(sv val) { return val; }
 
-  export constexpr heap to_s(int val) { return to_s(static_cast<long long>(val)); }
+  export constexpr inline heap to_s(int val) { return to_s(static_cast<long long>(val)); }
+  export constexpr inline heap to_s(unsigned val) { return to_s(static_cast<unsigned long long>(val)); }
 }
