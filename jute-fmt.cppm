@@ -76,6 +76,7 @@ namespace jute::fmt_impl {
 
   constexpr jute::heap ptos(auto && n) { return jute::to_s(traits::fwd<decltype(n)>(n)); }
   constexpr jute::heap ptos(jute::heap n) { return n; }
+  constexpr jute::heap ptos(jute::view n) { return jute::heap { jute::no_copy {}, n }; }
   constexpr jute::heap ptos(sv n) { return jute::heap { jute::no_copy {}, n }; }
 
   template<const char * Str, unsigned Len, typename... T>
